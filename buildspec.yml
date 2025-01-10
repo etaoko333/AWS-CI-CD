@@ -10,22 +10,23 @@ phases:
   install:
     runtime-versions:
       python: 3.11
+    commands:
+      - echo "Installing Python dependencies..."
+      - pip install -r requirements.txt
   pre_build:
     commands:
-      - echo "Installing dependencies..."
-      - pip install -r requirements.txt
-      - echo "Username: $DOCKER_REGISTRY_USERNAME"
-      - echo "Registry URL: $DOCKER_REGISTRY_URL"
+      - echo "Pre-build phase: Logging into Docker..."
+      - echo "Docker Username: $DOCKER_REGISTRY_USERNAME"
+      - echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
   build:
     commands:
-      - echo "Build phase started..."
-      # Comment out Docker commands for testing
-      # - echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin "$DOCKER_REGISTRY_URL"
-      # - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest" .
-      # - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest"
+      - echo "Build phase: Building Docker image..."
+      - docker build -t "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest" .
+      - echo "Build phase: Pushing Docker image..."
+      - docker push "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/hotel-app:latest"
   post_build:
     commands:
-      - echo "Build completed successfully!"
+      - echo "Post-build phase: Build and push completed successfully!"
 
 artifacts:
   files:
